@@ -18,6 +18,7 @@ public class AverageMarket {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String cashName;
-    private Long last;
+    private String last;
+    private String currentTime;
 
 }

@@ -40,15 +40,14 @@ public class RatesListener {
     @Value("${global_rate_url}")
     private String url;
 
-    @Scheduled(fixedRate = 1000 * 120)
+//    @Scheduled(fixedRate = 1000 * 120)
     public void getRates(){
 
         try {
-            System.out.println("全球汇率开始监听...");
+            log.info("全球汇率开始监听...");
             String currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
             String result = HttpUtils.sendGet(url);
             ExchangeRate exchangeRate = (ExchangeRate)JsonUtil.fromJson(result, ExchangeRate.class);
-            System.out.println(exchangeRate.toString());
             if (null == exchangeRate){
                 log.error("获取全球汇率失败...");
                 return;
