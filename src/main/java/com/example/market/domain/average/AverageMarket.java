@@ -19,6 +19,7 @@ public class AverageMarket {
     private Long id;
     private String cashName;
     private String last;
+    @Column(name = "savetime")
     private String currentTime;
 
 }

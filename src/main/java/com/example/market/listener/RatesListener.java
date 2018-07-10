@@ -3,6 +3,7 @@ package com.example.market.listener;
 import com.example.market.common.Const;
 import com.example.market.common.HttpUtils;
 import com.example.market.common.JsonUtil;
+import com.example.market.common.VerifyNumUtil;
 import com.example.market.dao.CNYDetailDao;
 import com.example.market.dao.HKDDetailDao;
 import com.example.market.dao.JPYDetailDao;
@@ -40,7 +41,26 @@ public class RatesListener {
     @Value("${global_rate_url}")
     private String url;
 
-//    @Scheduled(fixedRate = 1000 * 120)
+
+    @Scheduled(cron = "0 0 24 * * ?")
+    public void getCNYRates(){
+
+    }
+    @Scheduled(cron = "0 0 24 * * ?")
+    public void getHKDRates(){
+
+    }
+    @Scheduled(cron = "0 0 24 * * ?")
+    public void getJPYRates(){
+
+    }
+    @Scheduled(cron = "0 0 24 * * ?")
+    public void getKRWRates(){
+
+    }
+
+
+    @Scheduled(cron = "0 0 24 * * ?")
     public void getRates(){
 
         try {
@@ -71,36 +91,41 @@ public class RatesListener {
                 JPYDetail jpy = jpyDetailDao.findByName(Const.HKD.getFullName());
                 KRWDetail krw = krwDetailDao.findByName(Const.KRW.getFullName());
 
-                if (null != cny && null != hkd && null != jpy && null != krw){
-                    cny.setDate(currentTime);
-                    cny.setName(cnyName);
-                    cny.setRate(cnyRate);
-                    cnyDetailDao.save(cny);
+                if (VerifyNumUtil.isNumber(cnyRate) && VerifyNumUtil.isNumber(hkdRate) && VerifyNumUtil.isNumber(jpyRate) && VerifyNumUtil.isNumber(krwRate)){
+                    if (null != cny && null != hkd && null != jpy && null != krw){
+                        cny.setDate(currentTime);
+                        cny.setName(cnyName);
+                        cny.setRate(cnyRate);
+                        cnyDetailDao.save(cny);
 
-                    hkd.setDate(currentTime);
-                    hkd.setName(hkdName);
-                    hkd.setRate(hkdRate);
-                    hkdDetailDao.save(hkd);
+                        hkd.setDate(currentTime);
+                        hkd.setName(hkdName);
+                        hkd.setRate(hkdRate);
+                        hkdDetailDao.save(hkd);
 
-                    jpy.setDate(currentTime);
-                    jpy.setName(jpyName);
-                    jpy.setRate(jpyRate);
-                    jpyDetailDao.save(jpy);
+                        jpy.setDate(currentTime);
+                        jpy.setName(jpyName);
+                        jpy.setRate(jpyRate);
+                        jpyDetailDao.save(jpy);
 
-                    krw.setDate(currentTime);
-                    krw.setName(krwName);
-                    krw.setRate(krwRate);
-                    krwDetailDao.save(krw);
+                        krw.setDate(currentTime);
+                        krw.setName(krwName);
+                        krw.setRate(krwRate);
+                        krwDetailDao.save(krw);
 
+                    }else {
+                        exchangeRate.getRates().getCNY().setDate(currentTime);
+                        exchangeRate.getRates().getHKD().setDate(currentTime);
+                        exchangeRate.getRates().getJPY().setDate(currentTime);
+                        exchangeRate.getRates().getKRW().setDate(currentTime);
+                        cnyDetailDao.save(exchangeRate.getRates().getCNY());
+                        hkdDetailDao.save(exchangeRate.getRates().getHKD());
+                        jpyDetailDao.save(exchangeRate.getRates().getJPY());
+                        krwDetailDao.save(exchangeRate.getRates().getKRW());
+                    }
                 }else {
-                    exchangeRate.getRates().getCNY().setDate(currentTime);
-                    exchangeRate.getRates().getHKD().setDate(currentTime);
-                    exchangeRate.getRates().getJPY().setDate(currentTime);
-                    exchangeRate.getRates().getKRW().setDate(currentTime);
-                    cnyDetailDao.save(exchangeRate.getRates().getCNY());
-                    hkdDetailDao.save(exchangeRate.getRates().getHKD());
-                    jpyDetailDao.save(exchangeRate.getRates().getJPY());
-                    krwDetailDao.save(exchangeRate.getRates().getKRW());
+                    log.error("获取全球汇率含有异常字符，本次不更新");
+                    return;
                 }
 
                 log.info("全球汇率获取正常...");
