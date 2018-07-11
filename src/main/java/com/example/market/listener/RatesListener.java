@@ -41,8 +41,6 @@ public class RatesListener {
     @Value("${global_rate_url}")
     private String url;
 
-    private String currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-
 
     @Scheduled(cron = "0 0 0 * * ?")
     public void getRates(){
@@ -63,6 +61,7 @@ public class RatesListener {
      **/
     public void getCNYRate(){
         try {
+            String currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
             ExchangeRate exchangeRate = getJson();
             log.info("人民币汇率开始监听...");
             if (null == exchangeRate){
@@ -93,6 +92,7 @@ public class RatesListener {
             }
         }catch (Exception e){
             log.error("获取人民币汇率异常...", e);
+            return;
         }
 
     }
@@ -103,6 +103,7 @@ public class RatesListener {
      **/
     public void getHKDRate(){
         try {
+            String currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
             ExchangeRate exchangeRate = getJson();
             log.info("港币汇率开始监听...");
             if (null == exchangeRate){
@@ -132,6 +133,7 @@ public class RatesListener {
             }
         }catch (Exception e){
             log.error("获取港币汇率异常...", e);
+            return;
         }
 
     }
@@ -142,6 +144,7 @@ public class RatesListener {
     public void getKRWRate(){
 
         try {
+            String currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
             ExchangeRate exchangeRate = getJson();
             log.info("韩元汇率开始监听...");
             if (null == exchangeRate){
@@ -171,6 +174,7 @@ public class RatesListener {
             }
         }catch (Exception e){
             log.error("获取韩元汇率异常...", e);
+            return;
         }
 
     }
@@ -181,6 +185,7 @@ public class RatesListener {
     public void getJPYRate(){
 
         try {
+            String currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
             ExchangeRate exchangeRate = getJson();
             log.info("日元汇率开始监听...");
             if (null == exchangeRate){
@@ -210,6 +215,7 @@ public class RatesListener {
             }
         }catch (Exception e){
             log.error("获取日元汇率异常...", e);
+            return;
         }
 
 

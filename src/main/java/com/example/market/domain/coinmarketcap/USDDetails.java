@@ -1,4 +1,4 @@
-package com.example.market.domain.average;
+package com.example.market.domain.coinmarketcap;
 
 import lombok.Data;
 
@@ -6,22 +6,18 @@ import javax.persistence.*;
 
 /**
  * @author gaoyp
- * @create 2018/7/10  10:14
- * average交易所的比特币数据
+ * @create 2018/7/11  14:34
  **/
 @Data
-@Table(name = "average_market")
 @Entity
-public class AverageMarket {
-
+@Table(name = "coinmarketcap_usd_market")
+public class USDDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String cashName;
-    private String last;
+    private String price;
     @Column(name = "savetime")
-    private String currentTime;
+    private String saveTime;
     @Column(name = "cointype")
     private String coinType;
-
 }
