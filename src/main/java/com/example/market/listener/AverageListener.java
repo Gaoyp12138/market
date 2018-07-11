@@ -1,7 +1,7 @@
 package com.example.market.listener;
 
 import com.example.market.common.*;
-import com.example.market.dao.AverageMarketDao;
+import com.example.market.dao.average.AverageMarketDao;
 import com.example.market.domain.average.AverageMarket;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,19 +29,8 @@ public class AverageListener {
     @Scheduled(fixedRate = 1000 * 10)
     public void getBTCCNY(){
         averageListener(Const.CNY.getAbbreviation(),Const.CNY.getFullName());
-    }
-
-    @Scheduled(fixedRate = 1000 * 10)
-    public void getBTCHKD(){
         averageListener(Const.HKD.getAbbreviation(),Const.HKD.getFullName());
-    }
-
-    @Scheduled(fixedRate = 1000 * 10)
-    public void getBTCJPY(){
         averageListener(Const.JPY.getAbbreviation(),Const.JPY.getFullName());
-    }
-    @Scheduled(fixedRate = 1000 * 10)
-    public void getBTCKRW(){
         averageListener(Const.KRW.getAbbreviation(),Const.KRW.getFullName());
     }
 
@@ -65,6 +54,7 @@ public class AverageListener {
                          averageMarket.setCashName(fullName);
                          averageMarketDao.save(averageMarket);
                      }
+                     log.info("average market  " + Coin.BTC.getCoinType() + abbreviation +"  获取成功...");
                  }else {
                      log.error("非法字符，本次不更新行情...");
                      return;

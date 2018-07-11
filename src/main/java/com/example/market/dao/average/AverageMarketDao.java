@@ -1,4 +1,4 @@
-package com.example.market.dao;
+package com.example.market.dao.average;
 
 import com.example.market.domain.average.AverageMarket;
 import org.springframework.data.repository.CrudRepository;

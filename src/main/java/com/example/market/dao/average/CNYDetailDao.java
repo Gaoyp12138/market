@@ -1,6 +1,6 @@
-package com.example.market.dao;
+package com.example.market.dao.average;
 
-import com.example.market.domain.rate.HKDDetail;
+import com.example.market.domain.rate.CNYDetail;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,8 +11,8 @@ import org.springframework.stereotype.Repository;
  * @Modified By:
  */
 @Repository
-public interface HKDDetailDao extends CrudRepository<HKDDetail,Long> {
+public interface CNYDetailDao extends CrudRepository<CNYDetail,Long> {
 
-    HKDDetail findByName(String name);
+    CNYDetail findByName(String name);
 
 }

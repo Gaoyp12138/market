@@ -4,10 +4,10 @@ import com.example.market.common.Const;
 import com.example.market.common.HttpUtils;
 import com.example.market.common.JsonUtil;
 import com.example.market.common.VerifyNumUtil;
-import com.example.market.dao.CNYDetailDao;
-import com.example.market.dao.HKDDetailDao;
-import com.example.market.dao.JPYDetailDao;
-import com.example.market.dao.KRWDetailDao;
+import com.example.market.dao.average.CNYDetailDao;
+import com.example.market.dao.average.HKDDetailDao;
+import com.example.market.dao.average.JPYDetailDao;
+import com.example.market.dao.average.KRWDetailDao;
 import com.example.market.domain.rate.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,99 +41,178 @@ public class RatesListener {
     @Value("${global_rate_url}")
     private String url;
 
-
-    @Scheduled(cron = "0 0 24 * * ?")
-    public void getCNYRates(){
-
-    }
-    @Scheduled(cron = "0 0 24 * * ?")
-    public void getHKDRates(){
-
-    }
-    @Scheduled(cron = "0 0 24 * * ?")
-    public void getJPYRates(){
-
-    }
-    @Scheduled(cron = "0 0 24 * * ?")
-    public void getKRWRates(){
-
-    }
+    private String currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
 
-    @Scheduled(cron = "0 0 24 * * ?")
+    @Scheduled(cron = "0 0 0 * * ?")
     public void getRates(){
+        getCNYRate();
+        getHKDRate();
+        getJPYRate();
+        getKRWRate();
+    }
 
+    public ExchangeRate getJson(){
+        String result = HttpUtils.sendGet(url);
+        ExchangeRate exchangeRate = (ExchangeRate)JsonUtil.fromJson(result, ExchangeRate.class);
+        return exchangeRate;
+    }
+
+    /**
+     * 获取CNY全球汇率
+     **/
+    public void getCNYRate(){
         try {
-            log.info("全球汇率开始监听...");
-            String currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-            String result = HttpUtils.sendGet(url);
-            ExchangeRate exchangeRate = (ExchangeRate)JsonUtil.fromJson(result, ExchangeRate.class);
+            ExchangeRate exchangeRate = getJson();
+            log.info("人民币汇率开始监听...");
             if (null == exchangeRate){
-                log.error("获取全球汇率失败...");
+                log.error("人民币汇率失败...");
                 return;
             }else {
 
                 String cnyName = exchangeRate.getRates().getCNY().getName();
                 String cnyRate = exchangeRate.getRates().getCNY().getRate();
 
-                String hkdName = exchangeRate.getRates().getHKD().getName();
-                String hkdRate = exchangeRate.getRates().getHKD().getRate();
-
-                String jpyName = exchangeRate.getRates().getJPY().getName();
-                String jpyRate = exchangeRate.getRates().getJPY().getRate();
-
-                String krwName = exchangeRate.getRates().getKRW().getName();
-                String krwRate = exchangeRate.getRates().getKRW().getRate();
-
-
                 CNYDetail cny = cnyDetailDao.findByName(Const.CNY.getFullName());
-                HKDDetail hkd = hkdDetailDao.findByName(Const.HKD.getFullName());
-                JPYDetail jpy = jpyDetailDao.findByName(Const.HKD.getFullName());
-                KRWDetail krw = krwDetailDao.findByName(Const.KRW.getFullName());
-
-                if (VerifyNumUtil.isNumber(cnyRate) && VerifyNumUtil.isNumber(hkdRate) && VerifyNumUtil.isNumber(jpyRate) && VerifyNumUtil.isNumber(krwRate)){
-                    if (null != cny && null != hkd && null != jpy && null != krw){
+                if (VerifyNumUtil.isNumber(cnyRate)){
+                    if (null != cny ){
                         cny.setDate(currentTime);
                         cny.setName(cnyName);
                         cny.setRate(cnyRate);
                         cnyDetailDao.save(cny);
+                    }else {
+                        exchangeRate.getRates().getCNY().setDate(currentTime);
 
+                        cnyDetailDao.save(exchangeRate.getRates().getCNY());
+                    }
+                }else {
+                    log.error("获取人民币汇率含有异常字符，本次不更新");
+                    return;
+                }
+                log.info("人民币汇率获取正常...");
+            }
+        }catch (Exception e){
+            log.error("获取人民币汇率异常...", e);
+        }
+
+    }
+
+
+    /**
+     * 获取HKD汇率
+     **/
+    public void getHKDRate(){
+        try {
+            ExchangeRate exchangeRate = getJson();
+            log.info("港币汇率开始监听...");
+            if (null == exchangeRate){
+                log.error("港币汇率失败...");
+                return;
+            }else {
+
+                String hkdName = exchangeRate.getRates().getHKD().getName();
+                String hkdRate = exchangeRate.getRates().getHKD().getRate();
+
+                HKDDetail hkd = hkdDetailDao.findByName(Const.HKD.getFullName());
+                if (VerifyNumUtil.isNumber(hkdRate)){
+                    if (null != hkd ){
                         hkd.setDate(currentTime);
                         hkd.setName(hkdName);
                         hkd.setRate(hkdRate);
                         hkdDetailDao.save(hkd);
+                    }else {
+                        exchangeRate.getRates().getHKD().setDate(currentTime);
+                        hkdDetailDao.save(exchangeRate.getRates().getHKD());
+                    }
+                }else {
+                    log.error("获取港币汇率含有异常字符，本次不更新");
+                    return;
+                }
+                log.info("港币汇率获取正常...");
+            }
+        }catch (Exception e){
+            log.error("获取港币汇率异常...", e);
+        }
 
-                        jpy.setDate(currentTime);
-                        jpy.setName(jpyName);
-                        jpy.setRate(jpyRate);
-                        jpyDetailDao.save(jpy);
+    }
 
+    /**
+     * 获取KRW汇率
+     **/
+    public void getKRWRate(){
+
+        try {
+            ExchangeRate exchangeRate = getJson();
+            log.info("韩元汇率开始监听...");
+            if (null == exchangeRate){
+                log.error("韩元汇率失败...");
+                return;
+            }else {
+
+                String krwName = exchangeRate.getRates().getKRW().getName();
+                String krwRate = exchangeRate.getRates().getKRW().getRate();
+
+                KRWDetail krw = krwDetailDao.findByName(Const.KRW.getFullName());
+                if (VerifyNumUtil.isNumber(krwRate)){
+                    if (null != krw ){
                         krw.setDate(currentTime);
                         krw.setName(krwName);
                         krw.setRate(krwRate);
                         krwDetailDao.save(krw);
-
                     }else {
-                        exchangeRate.getRates().getCNY().setDate(currentTime);
-                        exchangeRate.getRates().getHKD().setDate(currentTime);
-                        exchangeRate.getRates().getJPY().setDate(currentTime);
                         exchangeRate.getRates().getKRW().setDate(currentTime);
-                        cnyDetailDao.save(exchangeRate.getRates().getCNY());
-                        hkdDetailDao.save(exchangeRate.getRates().getHKD());
-                        jpyDetailDao.save(exchangeRate.getRates().getJPY());
                         krwDetailDao.save(exchangeRate.getRates().getKRW());
                     }
                 }else {
-                    log.error("获取全球汇率含有异常字符，本次不更新");
+                    log.error("获取韩元汇率含有异常字符，本次不更新");
                     return;
                 }
-
-                log.info("全球汇率获取正常...");
-
+                log.info("韩元汇率获取正常...");
             }
         }catch (Exception e){
-            log.error("获取全球汇率异常...", e);
+            log.error("获取韩元汇率异常...", e);
         }
 
     }
+
+    /**
+     * 获取JPY汇率
+     **/
+    public void getJPYRate(){
+
+        try {
+            ExchangeRate exchangeRate = getJson();
+            log.info("日元汇率开始监听...");
+            if (null == exchangeRate){
+                log.error("日元汇率失败...");
+                return;
+            }else {
+
+                String jpyName = exchangeRate.getRates().getJPY().getName();
+                String jpyRate = exchangeRate.getRates().getJPY().getRate();
+
+                JPYDetail jpy = jpyDetailDao.findByName(Const.HKD.getFullName());
+                if (VerifyNumUtil.isNumber(jpyRate)){
+                    if (null != jpy ){
+                        jpy.setDate(currentTime);
+                        jpy.setName(jpyName);
+                        jpy.setRate(jpyRate);
+                        jpyDetailDao.save(jpy);
+                    }else {
+                        exchangeRate.getRates().getJPY().setDate(currentTime);
+                        jpyDetailDao.save(exchangeRate.getRates().getJPY());
+                    }
+                }else {
+                    log.error("获取日元汇率含有异常字符，本次不更新");
+                    return;
+                }
+                log.info("日元汇率获取正常...");
+            }
+        }catch (Exception e){
+            log.error("获取日元汇率异常...", e);
+        }
+
+
+    }
+
 }
