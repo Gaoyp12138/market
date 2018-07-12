@@ -27,7 +27,7 @@ public class AverageListener {
     private AverageMarketDao averageMarketDao;
 
 //    @Scheduled(fixedRate = 1000 * 10)
-    public void getBTCCNY(){
+    public void getBTCCash(){
         averageListener(Const.CNY.getAbbreviation(),Const.CNY.getFullName(),Coin.BTC.getCoinType());
         averageListener(Const.HKD.getAbbreviation(),Const.HKD.getFullName(),Coin.BTC.getCoinType());
         averageListener(Const.JPY.getAbbreviation(),Const.JPY.getFullName(),Coin.BTC.getCoinType());

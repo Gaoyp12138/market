@@ -41,7 +41,7 @@ public class CoinMarketCapListener {
     private KRWDetailsDao krwDetailsDao;
 
 
-    @Scheduled(fixedRate = 1000 * 10)
+//    @Scheduled(fixedRate = 1000 * 10)
     public void getRates(){
         getCNYMarket();
         getHKDMarket();
